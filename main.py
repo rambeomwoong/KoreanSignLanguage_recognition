@@ -7,6 +7,7 @@ from PIL import ImageFont, ImageDraw, Image
 import time
 import pyautogui
 import pickle
+import platform
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, InputLayer
@@ -64,7 +65,11 @@ def draw_styled_landmark(image, results):
 def myPutText(src, text, pos, font_size, font_color):
     img_pil = Image.fromarray(src)
     draw = ImageDraw.Draw(img_pil)
-    font = ImageFont.truetype('fonts/gulim.ttc', font_size)  # 윈도우 에서는 'fonts/gulim.ttc', 애플 "AppleGothic.ttf"
+    font_path = 'fonts/gulim.ttc'
+    if platform.system() == "Darwin":
+        font_path = 'AppleGothic.ttf'
+
+    font = ImageFont.truetype(font_path, font_size)  # 윈도우 에서는 'fonts/gulim.ttc', 애플 "AppleGothic.ttf"
     draw.text(pos, text, font=font, fill=font_color)
     return np.array(img_pil)
 
