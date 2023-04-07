@@ -9,9 +9,6 @@ import pyautogui
 import pickle
 import platform
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout, InputLayer
-
 import xgboost as xgb
 
 
@@ -24,13 +21,8 @@ with open(keyboard_path, 'rb') as f:
     KEYBOARD_DICT = pickle.load(f)
 
 FONT_SIZE = 100 # 글자 표시 사이즈
-# WIDTH = 1920 # 화면 너비
-# HEIGHT = 1080 # 화면 높이
 BOX_HEIGHT = 100 # 글자, 숫자 버튼 높이
 COLOR = (255, 0, 0) # 글자 색깔
-
-MODEL_FRAME = 15 # 딥러닝 모델 입력 프레임 수
-MODEL_TYPE = "ML"  # DL, ML
 
 SPEED_LIMIT = 0.05 # 손 끝 속도 기준치
 TIME_FRAME = 0.2 # 속도 계산 시간차
@@ -45,20 +37,9 @@ def mediapipe_detection(image, model):
     image.flags.writeable = False  # image is no longer writeable
     results = model.process(image)  # detection
     image.flags.writeable = True  # image is writeable
-    # results_flip = model.process(cv2.flip(image, 1))      # 좌우반전 핸드마크 그리기 위한 값.
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return image, results 
 
-
-def draw_styled_landmark(image, results):
-    print(results.multi_hand_landmarks)
-    mp_drawing.draw_landmarks(
-        image,
-        results.multi_hand_landmarks,
-        mp_hands.HAND_CONNECTIONS,
-        mp_drawing.DrawingSpec(color=(0, 0, 255), thickness=1, circle_radius=1),
-        mp_drawing.DrawingSpec(color=(224, 224, 224), thickness=1, circle_radius=1),
-    )
 
 
 # OpenCV 이미지에 한글 그려주는 함수
@@ -74,21 +55,13 @@ def myPutText(src, text, pos, font_size, font_color):
     return np.array(img_pil)
 
 
-# 딥러닝 detection 함수
-def detect_DL(input_deque):
-    input_array = np.array(input_deque).reshape(1, MODEL_FRAME, -1)
-    res = model.predict(input_array, verbose=0)
-    res_idx = np.argmax(res)
-    res_final = labels["val"][res_idx]
-
-    return res_final
-
 # 머신러닝 detection 함수
 def detect_ML(input_array):
     pred = model.predict(xgb.DMatrix(input_array.reshape(1, -1)))[0]
     pred = np.argmax(pred)
     return labels["val"][pred]
 
+# 타이핑 함수
 def keyboard(cur_res_final):
     if cur_res_final == 'ㅚ':
         pyautogui.write(KEYBOARD_DICT['ㅗ'])
@@ -117,7 +90,6 @@ WIDTH = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) # 화면 너비
 HEIGHT = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) # 화면 높이
 
 
-
 model = xgb.Booster()
 model.load_model(model_path)
 
@@ -134,39 +106,33 @@ while True:
         min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands=2
     ) as hands:
         image, results = mediapipe_detection(frame, hands)
-        
-
-        # if results_flip.multi_hand_landmarks:
-        #     for flip_hand_landmarks in results_flip.multi_hand_landmarks:
-        #         mp_drawing.draw_landmarks(
-        #             image, flip_hand_landmarks, mp_hands.HAND_CONNECTIONS
-        #         )
-
 
         if results.multi_hand_landmarks:
             for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):   # idx = 0 : right, idx = 1 : left
-                left_hand = False
-                if len(results.multi_hand_landmarks) == 1: # 한 손만 인식 될 때
+                left_hand = False       # 왼손 인식 여부
+                if len(results.multi_hand_landmarks) == 1: # 한 손만 인식 될 때 (오른손)
                     # 손 랜드마크 이미지에 그리기
                     mp_drawing.draw_landmarks(
-                        image, hand_landmarks, mp_hands.HAND_CONNECTIONS                       ##############################
+                        image, hand_landmarks, mp_hands.HAND_CONNECTIONS           
                     )
 
-                    # 손 랜드마크 np.array (3D)로 변환
+                    # 오른손 랜드마크 np.array (3D)로 변환
                     hand_array = np.array(
                         [[res.x, res.y, res.z] for res in hand_landmarks.landmark]
                     )
 
                     # 손 끝 (엄지-새끼) 랜드마크만 추출
                     cur_hand_end = hand_array[[4, 8, 12, 16, 20], :]
+
                     # 원본 손 랜드마크 좌표에서 모델로 인식할 때에는 x, y만 사용
                     hand_array = hand_array[:, :2].flatten()
+
                 elif len(results.multi_hand_landmarks) == 2: # 두 손이 인식 될 때
                     # 손 랜드마크 이미지에 그리기
                     mp_drawing.draw_landmarks(
-                        image, hand_landmarks, mp_hands.HAND_CONNECTIONS                       ##############################
+                        image, hand_landmarks, mp_hands.HAND_CONNECTIONS         
                     )
-                    if idx == 0:
+                    if idx == 0:  # 오른손
                         # 손 랜드마크 np.array (3D)로 변환
                         hand_array = np.array(
                             [[res.x, res.y, res.z] for res in hand_landmarks.landmark]
@@ -176,8 +142,9 @@ while True:
                         cur_hand_end = hand_array[[4, 8, 12, 16, 20], :]
                         # 원본 손 랜드마크 좌표에서 모델로 인식할 때에는 x, y만 사용
                         hand_array = hand_array[:, :2].flatten()
-                    elif idx == 1:
-                        left_hand = True
+                    elif idx == 1:  # 왼손
+                        left_hand = True    # 왼손 인식
+
                         # 손 랜드마크 np.array (3D)로 변환
                         left_hand_array = np.array(
                             [[res.x, res.y, res.z] for res in hand_landmarks.landmark]
@@ -185,14 +152,16 @@ while True:
                         # 손 끝 (엄지-새끼) 랜드마크만 추출
                         cur_left_hand_end = left_hand_array[[4, 8, 12, 16, 20], :]
 
-            if left_hand:
+            if left_hand:   # 인터페이스에 있는 기능들은 왼손으로 선택 가능
+
                 # 검지 손 끝으로 화면 밑에서 숫자, 문자를 선택하는지 확인
                 index_finger = cur_left_hand_end[1]
                 if index_finger[1] > (HEIGHT - BOX_HEIGHT)/HEIGHT:
-                    if index_finger[0] > 0.5:
+                    if index_finger[0] < 0.5:
                         IS_NUM = True
-                    elif index_finger[0] < 0.5:
+                    elif index_finger[0] > 0.5:
                         IS_NUM = False
+                # 검지 손 끝으로 화면 위에서 del을 선택하는지 확인
                 elif index_finger[1] < BOX_HEIGHT / HEIGHT:
                     if index_finger[0] > 0.8:
                         pyautogui.hotkey('backspace')
@@ -228,7 +197,7 @@ while True:
             cur_res_final = cur_res_final_list[0]
         else:
             cur_res_final = cur_res_final_list[-1]
-        
+
 
         # 이번 프레임에서 인식된 글자가 이전에 인식된 글자와 다르면, 최종 타이핑할 결과에 append하기
         if cur_res_final and cur_res_final != prev_res_final:
@@ -238,10 +207,10 @@ while True:
 
         print(final_type_store, end='\r')
 
-        #######################
+        # 보기 편하게 화면 좌우 반전
         image = cv2.flip(image, 1)
 
-        # 결과 문자 이미지에 그리기
+        # 결과 문자 화면에 그리기
         image = myPutText(image, cur_res_final, (500, 50), FONT_SIZE, COLOR)
         # 화면 아래에 한글, 숫자 버튼 표시하는 코드
         cv2.rectangle(
@@ -284,7 +253,7 @@ while True:
             (0, 0, 0)
         )
 
-        # Display image and break when 'q' is pressed
+        # 'q' 누르면 종료
         cv2.imshow("frame", image)
         if cv2.waitKey(10) & 0xFF == ord("q"):
             break
