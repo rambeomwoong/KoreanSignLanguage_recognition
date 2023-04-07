@@ -41,10 +41,10 @@
 ## ⛓️ 구성도
 ---
 - 수형 학습 구성도
-![image](https://user-images.githubusercontent.com/120548753/230588443-4615e0d4-5dbb-4d10-b6c9-d58e5f3bd81a.png)
+<img src=https://user-images.githubusercontent.com/120548753/230588443-4615e0d4-5dbb-4d10-b6c9-d58e5f3bd81a.png width='100' height='100'>
 
 - 수형 테스트 구성도
-![image](https://user-images.githubusercontent.com/120548753/230588274-56753e04-98e3-4f9b-9c53-ae3eb28acda6.png)
+<img src=https://user-images.githubusercontent.com/120548753/230588274-56753e04-98e3-4f9b-9c53-ae3eb28acda6.png width='200' height='100'>
 
 
 ### 개발 노션 페이지
