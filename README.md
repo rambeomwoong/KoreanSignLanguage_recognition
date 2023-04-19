@@ -49,7 +49,8 @@
 ## ⛓️ 구성도
 ---
 - 수형 학습 구성도
-<img src=https://user-images.githubusercontent.com/120548753/230588443-4615e0d4-5dbb-4d10-b6c9-d58e5f3bd81a.png width='700' height='500'>
+<img width="536" alt="스크린샷 2023-04-17 오후 3 05 23" src="https://user-images.githubusercontent.com/120548753/233043114-b95615d8-4b30-49e5-81e3-db6516f49c9b.png">
+
 
 - 수형 테스트 구성도
 <img src=https://user-images.githubusercontent.com/120548753/230588274-56753e04-98e3-4f9b-9c53-ae3eb28acda6.png width='700' height='500'>
