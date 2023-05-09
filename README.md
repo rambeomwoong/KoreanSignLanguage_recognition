@@ -46,12 +46,15 @@
 
 ## ⛓️ 구성도
 ---
-- 수형 학습 구성도
+
+- 수어 인식 구성도
+<img width="600" alt="스크린샷 2023-05-09 오후 7 00 34" src="https://user-images.githubusercontent.com/120548753/237063175-1ee37ccd-6739-440f-afd1-13f113d25d10.png">
+
+
+- 데이터 처리 구성도
 <img width="600" alt="스크린샷 2023-04-17 오후 3 05 23" src="https://user-images.githubusercontent.com/120548753/233043114-b95615d8-4b30-49e5-81e3-db6516f49c9b.png">
 
 
-- 수형 테스트 구성도
-<img width="600" alt="스크린샷 2023-04-17 오후 3 15 02" src="https://user-images.githubusercontent.com/120548753/233043493-251c1d34-0f5a-4b21-bf9f-2ec734a291cb.png">
 
 
 
